@@ -1,0 +1,66 @@
+---
+roles:
+- name: nginx
+  jobs:
+  - name: nginx
+    release_name: nginx
+  run:
+    scaling:
+      min: 1
+      max: 3
+    memory: 256
+    virtual-cpus: 4
+    exposed-ports:
+    - name: nats-http
+      protocol: TCP
+      external: 80
+      internal: 80
+      public: false
+    - name: nats-https
+      protocol: TCP
+      external: 443
+      internal: 443
+      public: true
+
+configuration:
+  templates:
+    networks.default.dns_record_name: '"((DNS_RECORD_NAME))"'
+    networks.default.ip: '"((IP_ADDRESS))"'
+    properties.nginx_conf: |
+      user  nginx;
+      worker_processes  1;
+
+      error_log  /var/log/nginx/error.log warn;
+      pid        /var/run/nginx.pid;
+
+
+      events {
+          worker_connections  1024;
+      }
+
+
+      http {
+          include       /etc/nginx/mime.types;
+          default_type  application/octet-stream;
+
+          log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                            '$status $body_bytes_sent "$http_referer" '
+                            '"$http_user_agent" "$http_x_forwarded_for"';
+
+          access_log  /var/log/nginx/access.log  main;
+
+          sendfile        on;
+          #tcp_nopush     on;
+
+          keepalive_timeout  65;
+
+          gzip  ((NGINX_GZIP_ENABLED));
+
+          include /etc/nginx/conf.d/*.conf;
+      }
+
+  variables:
+  - name: NGINX_GZIP_ENABLED
+    description: nginx configuration gzip feature flag
+    required: true
+    default: "on"
