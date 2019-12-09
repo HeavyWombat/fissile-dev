@@ -1,3 +1,9 @@
 [submodule "releases/nginx-release"]
 	path = releases/nginx-release
 	url = https://github.com/cloudfoundry-community/nginx-release
+[submodule "releases/loggregator-agent"]
+	path = releases/loggregator-agent
+	url = https://github.com/cloudfoundry/loggregator-agent-release.git
+[submodule "releases/bpm"]
+	path = releases/bpm
+	url = https://github.com/cloudfoundry/bpm-release.git
